@@ -120,7 +120,6 @@ class CortexaApp(ctk.CTk):
                 messages=self.chat_history,
                 options={
                     "temperature": 0.4,
-                    "num_predict": 180,
                 },
             )
             text = response["message"]["content"]
@@ -129,43 +128,26 @@ class CortexaApp(ctk.CTk):
 
         self.after(0, lambda: self.finish_response(thinking_label, text))
 
+    # ---------------- FINISH RESPONSE ----------------
     def finish_response(self, thinking_label, text):
         thinking_label.alive = False
         thinking_label.destroy()
 
+        # Show full response instantly (no per-character typing)
         self.fake_typing(text)
         self.chat_history.append({"role": "assistant", "content": text})
 
-    # ---------------- FAKE TYPING ----------------
+    # ---------------- FAKE TYPING (FULL TEXT) ----------------
     def fake_typing(self, text):
         bg = "#2a2a2a"
         border = "#1c1c1c"
 
-        outer = ctk.CTkFrame(
-            self.chat_frame,
-            fg_color=border,
-            corner_radius=18,
-        )
-        inner = ctk.CTkFrame(
-            outer,
-            fg_color=bg,
-            corner_radius=16,
-        )
-
-        label = ctk.CTkLabel(
-            inner, text="", wraplength=520, justify="left"
-        )
-
+        outer = ctk.CTkFrame(self.chat_frame, fg_color=border, corner_radius=18)
+        inner = ctk.CTkFrame(outer, fg_color=bg, corner_radius=16)
+        label = ctk.CTkLabel(inner, text=text, wraplength=520, justify="left")
         label.pack(padx=12, pady=8)
         inner.pack(padx=2, pady=2)
         outer.pack(anchor="w", padx=10, pady=5)
-
-        current = ""
-        for char in text:
-            current += char
-            label.configure(text=current)
-            self.chat_frame.update_idletasks()
-            time.sleep(0.008)
 
 
 if __name__ == "__main__":
